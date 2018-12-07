@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.UserDAO">
+	<resultMap id="bean" type="com.application.bean.User">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="pwd" property="pwd" />
+		<result column="type" property="type"/>
+		<result column="phone" property="phone"/>
+		<result column="email" property="email"/>
+		<result column="major" property="major"/>
+		<result column="dept" property="dept"/>
+		<result column="resume" property="resume"/>
+	</resultMap>
+	<sql id="columns">
+		id, name, pwd, type, phone, email, major, dept, resume
+	</sql>
+	<update id="update">
+		UPDATE user SET id=#{u.id}
+		<if test="u.name != null and u.name!=''">,name=#{u.name}</if>
+		<if test="u.pwd != null and u.pwd!=''">,pwd=#{u.pwd}</if>
+		<if test="u.phone !=null and u.phone!=''">,phone=#{u.phone}</if>
+		<if test="u.email !=null and u.email!=''">,email=#{u.email}</if>
+		<if test="u.major !=null and u.major!=''">,major=#{u.major}</if>
+		<if test="u.dept !=null and u.dept!=''">,dept=#{u.dept}</if>
+		<if test="u.resume !=null and u.resume!=''">,resume=#{u.resume}</if>
+		WHERE id=#{u.id}
+	</update>
+	<select id="get" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM user
+		WHERE id = #{id}
+	</select>
+	<insert id="add">
+		INSERT INTO
+		user
+		(
+		<include refid="columns"></include>
+		)
+		VALUES
+		(
+		#{u.id},
+		#{u.name},
+		#{u.pwd},
+		#{u.type},
+		#{u.phone},
+		#{u.email},
+		#{u.major},
+		#{u.dept},
+		#{u.resume}
+		)
+	</insert>
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(0) FROM user
+		WHERE type=#{param.type}
+	</select>
+	<select id="getGroupUserList" resultMap="bean">
+		SELECT 
+		a.id, a.name, a.pwd, a.type, a.phone, a.email, a.major, a.dept, a.resume
+		FROM user a
+		LEFT JOIN user_group b
+		ON b.user_id=a.id
+		WHERE b.group_id=#{id}
+	</select>
+</mapper>

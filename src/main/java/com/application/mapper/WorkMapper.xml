@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.WorkDAO">
+	<resultMap id="bean" type="com.application.bean.Work">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="title" property="title"/>
+		<result column="content" property="content"/>
+		<result column="attachment" property="attachment"/>
+		<result column="description" property="description"/>
+		<result column="create_time" property="createTime"/>
+		<result column="commit_time"	property="commitTime"/>
+		<result column="finish_time" property="finishTime"/>
+	</resultMap>
+	<sql id="columns">
+		id, project_id, title, content, attachment, description, create_time, commit_time, finish_time
+	</sql>
+	<insert id="add"  useGeneratedKeys="true" keyProperty="work.id">
+		INSERT INTO work(
+			project_id,title, content, attachment, description,
+			create_time, commit_time,
+			finish_time
+		)
+		VALUES(
+			#{work.projectId},#{work.title},#{work.content},#{work.attachment},#{work.description},
+			#{work.createTime},#{work.commitTime},
+			#{work.finishTime}
+		)
+	</insert>
+	<select id="get" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM work
+		WHERE id = #{id}
+	</select>
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(0) FROM work;
+	</select>
+	<select id="getWorkByProjectId" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM work
+		WHERE project_id=#{id}
+		ORDER BY id ASC
+	</select>
+	<select id="getMyWorkList" resultMap="bean">
+		SELECT 
+		a.id, a.project_id, a.title, a.content, a.attachment, a.description, a.create_time, a.commit_time, a.finish_time
+		FROM work a 
+		LEFT JOIN
+		user_group b
+		ON a.project_id=b.project_id
+		WHERE
+		b.user_id=#{id}
+		LIMIT  #{page.beginIndex},#{page.pageSize} ;
+	</select>
+	<select id="getMyWorkCount" resultType="int">
+		SELECT 
+		COUNT(a.id)
+		FROM work a 
+		LEFT JOIN
+		user_group b
+		ON a.project_id=b.project_id
+		WHERE
+		b.user_id=#{id}
+	</select>
+	<select id="getWorkById" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM work
+		WHERE 
+		work.id=#{id}
+	</select>
+	<select id="getUserIdListByWorkId" resultType="String">
+		SELECT DISTINCT a.user_id 
+		FROM
+		user_group a LEFT JOIN `group` b
+		ON  a.group_id=b.id
+		LEFT JOIN `work` c 
+		ON c.project_id=b.project_id
+		WHERE c.id=#{id} AND b.master_id=#{masterId}
+	</select>
+	<select id="getProjectOwner" resultType="String">
+		SELECT a.user_id 
+		FROM project a 
+		LEFT JOIN `work` c 
+		ON c.project_id=a.id
+		WHERE c.id=#{id}
+	</select>
+</mapper>

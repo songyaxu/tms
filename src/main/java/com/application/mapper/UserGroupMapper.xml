@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.UserGroupDAO">
+	<resultMap id="bean" type="com.application.bean.UserGroup">
+		<id column="id" property="id" />
+		<result column="group_id" property="groupId" />
+		<result column="project_id" property="projectId"/>
+		<result column="user_id" property="userId" />
+		<result column="is_master" property="isMaster"/>
+	</resultMap>
+	<sql id="columns">
+		id, group_id, project_id, user_id, is_master
+	</sql>
+	<insert id="add"  useGeneratedKeys="true" keyProperty="ug.id">
+		INSERT INTO
+		user_group
+		(
+			group_id, project_id, user_id, is_master
+		)
+		VALUES
+		(
+			#{ug.groupId},#{ug.projectId},#{ug.userId},#{ug.isMaster}
+		)
+	</insert>
+	<select id="getGroupCount" resultType="int">
+		SELECT COUNT(0) 
+		FROM user_group
+		WHERE group_id=#{id}
+	</select>
+	<select id="getGroupUser" resultType="String">
+		SELECT user_id
+		FROM user_group
+		WHERE group_id=#{id}
+	</select>
+	<select id="getUser" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM user_group
+		WHERE 
+		project_id=#{ug.projectId} AND user_id=#{ug.userId}
+		
+	</select>
+</mapper>

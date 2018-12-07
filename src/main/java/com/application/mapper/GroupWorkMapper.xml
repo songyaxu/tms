@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.GroupWorkDAO">
+	<resultMap id="bean" type="com.application.bean.GroupWork">
+		<id column="id" property="id" />
+		<result column="work_id" property="workId"/>
+		<result column="group_id" property="groupId"/>
+		<result column="master_id" property="masterId"/>
+		<result column="attachment" property="attachment"/>
+		<result column="log" property="log"/>
+		<result column="comment" property="comment"/>
+		<result column="score" property="score"/>
+	</resultMap>
+	<sql id="columns">
+		id, work_id, group_id, master_id, attachment, log, comment, score
+	</sql>
+	<select id="get" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM group_work
+		WHERE id = #{id}
+	</select>
+	<select id="getByWorkIdAndMasterId" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM group_work
+		WHERE work_id = #{workId}
+		AND  master_id=#{masterId}
+	</select>
+	<insert id="add" useGeneratedKeys="true" keyProperty="gw.id">
+		INSERT INTO
+		group_work
+		(
+			work_id,
+			group_id,
+			master_id,
+			attachment,
+			log,
+			comment,
+			score
+		)
+		VALUES
+		(
+			#{gw.workId},
+			#{gw.groupId},
+			#{gw.masterId},
+			#{gw.attachment},
+			#{gw.log},
+			#{gw.comment},
+			#{gw.score}
+		)
+	</insert>
+	<update id="updateLog">
+		UPDATE group_work
+		SET log= #{gw.log}
+		WHERE work_id = #{gw.workId}
+		AND  master_id=#{gw.masterId}
+	</update>
+	<update id="update">
+		UPDATE group_work
+		SET 
+		attachment=#{attachment}
+		WHERE id=#{id}
+	</update>
+	<update id="score">
+		UPDATE group_work
+		SET 
+		score = #{gw.score},
+		comment=#{gw.comment}
+		WHERE id=#{gw.id}
+	</update>
+	<select id="getMyWorkDetail" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM group_work
+		WHERE
+		work_id = #{gw.workId}
+		AND  master_id=#{gw.masterId}
+	</select>
+	<select id="getWorkGroupList" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM group_work
+		WHERE 
+		work_id=#{id}
+	</select>
+</mapper>

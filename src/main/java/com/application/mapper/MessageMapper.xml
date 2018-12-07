@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.MessageDAO">
+	<resultMap id="bean" type="com.application.bean.Message">
+		<id column="id" property="id" />
+		<result column="action" property="action" />
+		<result column="result" property="result" />
+		<result column="type" property="type"/>
+		<result column="state" property="state"/>
+		<result column="project_id" property="projectId"/>
+		<result column="work_id" property="workId"/>
+		<result column="content" property="content"/>
+		<result column="send_id" property="sendId"/>
+		<result column="receive_id" property="receiveId"/>
+		<result column="send_time" property="sendTime"/>
+		<result column="action_time" property="actionTime"/>
+	</resultMap>
+	<sql id="columns">
+		id, action, result, type, state, project_id, work_id, content, send_id, receive_id, send_time, action_time
+	</sql>
+	<select id="getUserUnreadCount" resultType="int">
+		SELECT COUNT(0) FROM message
+		WHERE receive_id = #{id} and state = 0
+	</select>
+	<select id="getById" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM message
+		WHERE id=#{id}
+	</select>
+	<insert id="add" useGeneratedKeys="true" keyProperty="msg.id">
+		INSERT INTO message
+		(
+			action, result, type, state, project_id, work_id,
+			content, send_id, receive_id,
+			send_time, action_time
+		) 
+		VALUES
+		(
+			#{msg.action},#{msg.result},#{msg.type},#{msg.state},#{msg.projectId},#{msg.workId},
+			#{msg.content},#{msg.sendId},#{msg.receiveId},
+			#{msg.sendTime},#{msg.actionTime}
+		)
+	</insert>
+	<update id="update">
+		UPDATE message 
+		SET state = #{msg.state}
+		<if test="msg.result != null and msg.result!=''">
+			,result=#{msg.result}
+		</if>
+		<if test="msg.action != 0">
+			,action_time=now(),action=1
+		</if>
+		WHERE id = #{msg.id}
+	</update>
+	<select id="get" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM message
+		WHERE 1=1
+		<if test="param.state != null and param.state != '' ">
+			AND state = #{param.state}
+		</if>
+		<if test="param.type != null and param.type != '' ">
+			AND type = #{param.type}
+		</if>
+		<if test="param.projectId != 0">
+			AND project_id = #{param.projectId}
+		</if>
+		<if test="param.workId != 0">
+			AND work_id = #{param.workId}
+		</if>
+		<if test="param.sendId != null and param.sendId != '' ">
+			AND send_id = #{param.sendId}
+		</if>
+		<if test="param.receiveId != null and param.receiveId != ''">
+			AND receive_id = #{param.receiveId}
+		</if>
+	</select>
+	<select id="getByPage" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM message
+		WHERE 1=1
+		<if test="param.state != null and param.state != '' ">
+			AND state = #{param.state}
+		</if>
+		<if test="param.type != null and param.type != '' ">
+			AND type = #{param.type}
+		</if>
+		<if test="param.projectId != 0">
+			AND project_id = #{param.projectId}
+		</if>
+		<if test="param.workId != 0">
+			AND work_id = #{param.workId}
+		</if>
+		<if test="param.sendId != null and param.sendId != '' ">
+			AND send_id = #{param.sendId}
+		</if>
+		<if test="param.receiveId != null and param.receiveId != ''">
+			AND receive_id = #{param.receiveId}
+		</if>
+		LIMIT  #{page.beginIndex},#{page.pageSize} ;
+	</select>
+	<select id="getMessageCount" resultType="int">
+		SELECT COUNT(0)
+		FROM message
+		WHERE 1=1
+		<if test="param.state != null and param.state != '' ">
+			AND state = #{param.state}
+		</if>
+		<if test="param.type != null and param.type != '' ">
+			AND type = #{param.type}
+		</if>
+		<if test="param.projectId != 0">
+			AND project_id = #{param.projectId}
+		</if>
+		<if test="param.workId != 0">
+			AND work_id = #{param.workId}
+		</if>
+		<if test="param.sendId != null and param.sendId != '' ">
+			AND send_id = #{param.sendId}
+		</if>
+		<if test="param.receiveId != null and param.receiveId != ''">
+			AND receive_id = #{param.receiveId}
+		</if>
+	</select>
+</mapper>

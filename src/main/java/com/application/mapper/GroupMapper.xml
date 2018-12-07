@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.GroupDAO">
+	<resultMap id="bean" type="com.application.bean.Group">
+		<id column="id" property="id" />
+		<result column="title" property="title"/>
+		<result column="order" property="order"/>
+		<result column="project_id" property="projectId" />
+		<result column="master_id" property="masterId"/>
+	</resultMap>
+	<sql id="columns">
+		id, title, `order`, project_id, master_id
+	</sql>
+	<select id="get" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM `group`
+		WHERE id = #{id}
+	</select>
+	<select id="getGroupByProjectId" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM `group`
+		WHERE project_id=#{id}
+	</select>
+	<select id="getGroupByProIdUserId" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM `group`
+		WHERE project_id=#{proId} and master_id=#{userId}
+	</select>
+	<insert id="add" useGeneratedKeys="true" keyProperty="g.id">
+		INSERT INTO
+		`group`
+		(
+			title,
+			`order`,
+			project_id,
+			master_id
+		)
+		VALUES
+		(
+			#{g.title},
+			#{g.order},
+			#{g.projectId},
+			#{g.masterId}
+		)
+	</insert>
+	<select id="getProjectGroupOrder" resultType="int">
+		SELECT IFNULL(MAX(`order`),0)
+		FROM `group`
+		WHERE project_id=#{id} 
+	</select>
+	<select id="getWorkGroupMasterByWorkId" resultType="String">
+		SELECT
+		DISTINCT a.master_id 
+		FROM `group` a
+		LEFT JOIN 
+		user_group b 
+		ON b.group_id=a.id
+		LEFT JOIN `work` c
+		ON c.project_id=b.project_id
+		WHERE c.id=#{id} AND 
+		b.user_id = #{currentId}
+	</select>
+	<select id="getGroupIdByWorkId" resultType="int">
+		SELECT 
+		DISTINCT a.id
+		FROM `group` a
+		LEFT JOIN  user_group b
+		ON b.group_id=a.id
+		LEFT JOIN `work` c
+		ON c.project_id=b.project_id
+		WHERE
+		c.id=#{id}
+		AND b.user_id=#{userId}
+		
+	</select>
+</mapper>

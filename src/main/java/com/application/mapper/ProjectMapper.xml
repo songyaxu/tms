@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.application.dao.ProjectDAO">
+	<resultMap id="bean" type="com.application.bean.Project">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="description" property="description" />
+		<result column="attachment" property="attachment"/>
+		<result column="group_project" property="groupProject"/>
+		<result column="max_group" property="maxGroup"/>
+		<result column="group_max_member" property="groupMaxMember"/>
+		<result column="group_master" property="groupMaster"/>
+		<result column="user_id" property="userId"/>
+		<result column="user_name" property="userName"/>
+		<result column="time" property="time"/>
+	</resultMap>
+	<sql id="columns">
+		id, title, description, attachment, group_project, max_group, group_max_member, group_master, user_id, user_name, time
+	</sql>
+	<insert id="add" useGeneratedKeys="true" keyProperty="project.id">
+		INSERT INTO project
+		(
+			title, description, attachment,
+			group_project, max_group, group_max_member,
+			group_master, user_id,
+			user_name, time
+		)
+		VALUES
+		(
+			#{project.title},#{project.description},#{project.attachment},
+			#{project.groupProject},#{project.maxGroup},#{project.groupMaxMember},
+			#{project.groupMaster},#{project.userId},
+			#{project.userName},#{project.time}
+		)
+	</insert>
+	<select id="getList" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM project
+		WHERE 1=1
+		<if test="param.userId!=null and param.userId !=''"> 
+			AND user_id = #{param.userId}
+		</if>
+		<if test="param.sortColumn!=null and param.sortColumn !=''"> 
+			ORDER BY ${param.sortColumn} DESC
+		</if>
+		LIMIT  #{page.beginIndex},#{page.pageSize} ;
+	</select>
+	<select id="getListByKey" resultMap="bean">
+		SELECT 
+		<include refid="columns"></include>
+		FROM project
+		WHERE 1=1
+		<if test="param.userId!=null and param.userId !=''"> 
+			AND user_id = #{param.userId}
+		</if>
+		<if test="param.key!=null and param.key !=''">
+			AND (title like "%${param.key}%" or user_name like "%${param.key}%" or user_id like "%${param.key}%")
+		</if>
+		<if test="param.sortColumn!=null and param.sortColumn !=''"> 
+			ORDER BY ${param.sortColumn} DESC
+		</if>
+		LIMIT  #{page.beginIndex},#{page.pageSize} ;
+	</select>
+	<select id="getListCount" resultType="int">
+		SELECT 
+		COUNT(0)
+		FROM project
+		WHERE 1=1
+		<if test="param.userId!=null and param.userId !=''"> 
+			AND user_id = #{param.userId}
+		</if>
+		<if test="param.key!=null and param.key !=''">
+			AND (title like "%${param.key}%" or user_name like "%${param.key}%" or user_id like "%${param.key}%")
+		</if>
+	</select>
+	<select id="getUnionList" resultMap="bean">
+		SELECT 
+		a.id, a.title, a.description, a.attachment, a.group_project, a.max_group, a.group_max_member, a.group_master, a.user_id, a.user_name, a.time
+		FROM project a
+		LEFT JOIN
+		user_group b
+		ON a.id=b.project_id
+		WHERE
+		b.user_id=#{id}
+		LIMIT  #{page.beginIndex},#{page.pageSize} ;
+	</select>
+	<select id="getUnionListCount" resultType="int">
+		SELECT 
+		COUNT(a.id)
+		FROM project a
+		LEFT JOIN
+		user_group b
+		ON a.id=b.project_id
+		WHERE
+		b.user_id=#{id}
+	</select>
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(0) FROM project;
+	</select>
+	<select id="get" resultMap="bean">
+		SELECT
+		<include refid="columns"></include>
+		FROM project
+		WHERE id = #{id}
+	</select>
+</mapper>
